@@ -1,0 +1,17 @@
+.cache
+.tox
+.tx
+**/__pycache__
+*.pyc
+**/node_modules/
+sandbox/public/
+postgres-data/*
+venv/
+.git/
+**/.idea
+.DS_Store
+**/htmlcov/
+ui/**/.*
+ui/**/*.stories.*
+ui/**/*.md
+mjml/**/*.md

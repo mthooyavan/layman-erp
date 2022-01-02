@@ -1,0 +1,45 @@
+<script type="text/javascript">
+    $(function() {
+        let previousValues = $('#admin-filter-{{ title|cut:' ' }}').val()
+        $('#admin-filter-{{ title|cut:' ' }}').on('blur', function(event) {
+            const select = $(event.target);
+            let options = select.val()
+
+            // If we have multiple options selected there's a bunch of stuff that needs to be done. Mainly
+            // the 'All' option cannot overlap with any other options being selected.
+            if (options.length > 1) {
+                // 'All' is present in selected options. Determine if it came in or needs to go out.
+                if (options.some(element => element === 'all')) {
+                    // 'All' in previously selected options, needs to go out
+                    if (previousValues.some(element => element === 'all')) {
+                        options = options.filter(elem => elem !== 'all')
+                    }
+                    // 'All' is just coming in so everything else needs to go out
+                    else {
+                        options = ['all']
+                    }
+                }
+            }
+            previousValues = options
+            select.val(options)
+            const searchParams = new URLSearchParams(window.location.search);
+            if (options.every(elem => elem === 'all')) {
+                searchParams.delete('{{ choices.0.lookup }}');
+            } else {
+                searchParams.set('{{ choices.0.lookup }}', options.join(','));
+            }
+            console.log(options);
+            window.location = `${window.location.protocol}//${window.location.host}${window.location.pathname}?${searchParams.toString()}`;
+        });
+    })
+</script>
+<h3>By {{ title }}</h3>
+<ul class="admin-filter-{{ title|cut:' ' }}">
+    <li>
+        <select id="admin-filter-{{ title|cut:' ' }}" class="form-control browser-default" multiple>
+            {% for choice in choices %}
+                <option{% if choice.selected %} selected="selected"{% endif %} value="{{ choice.value }}">{{ choice.display }}</option>
+            {% endfor %}
+        </select>
+    </li>
+</ul>
