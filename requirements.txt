@@ -66,6 +66,8 @@ drf-yasg==1.20.0
     # via -r requirements.in
 future==0.18.2
     # via django-json-widget
+gunicorn==20.1.0
+    # via -r requirements.in
 idna==3.3
     # via
     #   requests
