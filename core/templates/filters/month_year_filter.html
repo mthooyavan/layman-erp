@@ -1,0 +1,27 @@
+{% load i18n %}
+<script type="text/javascript">var go_from_select = function(opt) { window.location = window.location.pathname + opt };</script>
+<h3>{% blocktrans with title as filter_title %} By {{ filter_title }} {% endblocktrans %}</h3>
+<ul class="admin-filter-{{ title|cut:' ' }}">
+    <li>
+        <div>
+            <label style="width: 25%; display: inline-block;">Month</label>
+            <select style="width: 70%;" class="form-control" onchange="go_from_select(this.options[this.selectedIndex].value)">
+            {% with choices|first as month_choices %}
+                {% for choice in month_choices %}
+                    <option {% if choice.selected %} selected="selected"{% endif %} value="{{ choice.query_string|iriencode }}">{{ choice.display }}</option>
+                {% endfor %}
+            {% endwith %}
+            </select>
+        </div>
+        <div>
+            <label style="width: 25%; display: inline-block;">Year</label>
+            <select style="width: 70%;" class="form-control" onchange="go_from_select(this.options[this.selectedIndex].value)">
+        {% with choices|last as year_choices %}
+                {% for choice in year_choices %}
+                    <option {% if choice.selected %} selected="selected"{% endif %} value="{{ choice.query_string|iriencode }}">{{ choice.display }}</option>
+                {% endfor %}
+        {% endwith %}
+            </select>
+        </div>
+    </li>
+</ul>
