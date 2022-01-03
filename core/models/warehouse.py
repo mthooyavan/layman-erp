@@ -16,7 +16,7 @@ class Warehouse(models.Model):
         blank=True, null=True, max_length=400, help_text="Description of the warehouse."
     )
 
-    business_name = models.CharField(max_length=250, default='Ohi Technologies')
+    business_name = models.CharField(max_length=250, default='Sky Papers')
     address_1 = models.CharField(max_length=128)
     address_2 = models.CharField(max_length=128, blank=True)
     city = models.CharField(max_length=64, )
