@@ -15,6 +15,9 @@ class Inventory(models.Model):
         ]
         verbose_name_plural = "inventories"
 
+    def __str__(self):
+        return '{} - {}'.format(self.product, self.warehouse)
+
     uuid = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
     product = models.ForeignKey('Product', on_delete=models.PROTECT)
     warehouse = models.ForeignKey('Warehouse', on_delete=models.PROTECT)

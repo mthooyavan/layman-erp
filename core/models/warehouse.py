@@ -9,6 +9,10 @@ LOCATION_TYPES = Choices(
 
 
 class Warehouse(models.Model):
+
+    def __str__(self):
+        return '{} - {} - {}'.format(self.short_code, self.name, self.business_name)
+
     name = models.CharField(
         blank=True, null=True, max_length=100
     )

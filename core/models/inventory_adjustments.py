@@ -21,7 +21,7 @@ class InventoryAdjustment(models.Model):
         return "{} - {} - {}".format(
             self.inventory.warehouse.name,
             self.inventory.product.sku,
-            self.inventory.product.title,
+            self.inventory.product.name,
         )
 
     inventory = models.ForeignKey('Inventory', on_delete=models.PROTECT)
