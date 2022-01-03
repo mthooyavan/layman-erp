@@ -10,11 +10,14 @@ PRODUCT_TYPE = Choices(
 
 class Product(models.Model):
     class Meta:
-        unique_together = ('sku', 'title', 'type', 'variant')
+        unique_together = ('sku', 'name', 'product_type', 'variant')
+
+    def __str__(self):
+        return "{} - {} - {}".format(self.name, self.variant, self.sku)
 
     sku = models.CharField(db_index=True, max_length=50)
-    title = models.CharField(db_index=True, max_length=255)
-    type = models.CharField(
+    name = models.CharField(db_index=True, max_length=255)
+    product_type = models.CharField(
         db_index=True, max_length=10,
         choices=PRODUCT_TYPE, default=PRODUCT_TYPE.paper
     )

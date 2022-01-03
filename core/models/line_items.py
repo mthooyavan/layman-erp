@@ -11,3 +11,7 @@ class LineItem(models.Model):
     quantity = models.PositiveSmallIntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    @property
+    def order_tracking_id(self) -> str:
+        return self.order.tracking_id

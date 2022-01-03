@@ -10,11 +10,12 @@ from django.contrib.admin.filters import (
     AllValuesFieldListFilter,
     ChoicesFieldListFilter,
     RelatedFieldListFilter,
-    RelatedOnlyFieldListFilter, FieldListFilter,
+    RelatedOnlyFieldListFilter, FieldListFilter, DateFieldListFilter,
 )
 from django.contrib.admin.utils import lookup_field
 from django.contrib.postgres import fields
 from django.db import connection
+from django.db.models import DateTimeField
 from django.http import HttpResponse, HttpResponseRedirect, FileResponse
 from django.utils import timezone
 from django.utils.http import urlencode
@@ -296,6 +297,32 @@ class ChoiceMultiSelectFilter(ChoiceDropdownFilter):
                 'value': lookup,
                 'lookup': self.lookup_kwarg,
             }
+
+
+class LastMonthDateFilter(DateFieldListFilter):
+    def __init__(self, field, *args, **kwargs):
+        super().__init__(field, *args, **kwargs)
+        now = timezone.now()
+        # When time zone support is enabled, convert "now" to the user's time
+        # zone so Django's definition of "Today" matches what the user expects.
+        if timezone.is_aware(now):
+            now = timezone.localtime(now)
+
+        if isinstance(field, DateTimeField):
+            today = now.replace(hour=0, minute=0, second=0, microsecond=0)
+        else:  # field is a models.DateField
+            today = now.date()
+        if today.month == 1:
+            previous_month = today.replace(
+                year=today.year - 1, month=12, day=1)
+        else:
+            previous_month = today.replace(month=today.month - 1, day=1)
+        self.links += (
+            ('Last month', {
+                self.lookup_kwarg_since: str(previous_month),
+                self.lookup_kwarg_until: str(today.replace(day=1)),
+            }),
+        )
 
 
 class MonthYearListFilter(admin.DateFieldListFilter):
