@@ -8,3 +8,4 @@ from .location import Location
 from .inventories import Inventory
 from .inventory_adjustments import InventoryAdjustment
 from .inventory_adjustment_logs import InventoryAdjustmentLog
+from .receipt import Receipt
