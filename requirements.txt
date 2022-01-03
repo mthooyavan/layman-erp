@@ -38,6 +38,8 @@ django==3.2
     #   django-extensions
     #   django-filter
     #   django-heroku
+    #   django-localflavor
+    #   django-model-utils
     #   djangorestframework
     #   djangorestframework-simplejwt
     #   drf-yasg
@@ -54,6 +56,10 @@ django-filter==21.1
 django-heroku==0.3.1
     # via -r requirements.in
 django-json-widget==1.1.1
+    # via -r requirements.in
+django-localflavor==3.1
+    # via -r requirements.in
+django-model-utils==4.2.0
     # via -r requirements.in
 djangorestframework==3.13.1
     # via
@@ -100,6 +106,8 @@ pyopenssl==21.0.0
     # via urllib3
 pyparsing==3.0.6
     # via packaging
+python-stdnum==1.17
+    # via django-localflavor
 pytz==2021.3
     # via
     #   django

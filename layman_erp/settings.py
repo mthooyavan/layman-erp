@@ -67,6 +67,7 @@ INSTALLED_APPS = [
     'django_filters',
 
     # Local Apps
+    'core.apps.CoreConfig',
     'api.apps.ApiConfig',
 
     # Useful Tools
@@ -170,6 +171,8 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static'),
 )
+
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 
 class DummyInternalIPs:
