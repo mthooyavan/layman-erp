@@ -35,27 +35,12 @@ class CustomerAdmin(CustomModelAdmin):
     ]
 
 
-class ReceiptAdmin(EstimateCountAdminMixin, CSVActionMixin, CustomModelAdmin):
-    search_fields = [
-        'receiving_centre',
-        'po_number',
-    ]
-    list_display = ('receiving_centre', 'po_number', 'created_at',)
-    list_select_related = ['receiving_centre', 'created_by']
-    list_filter = [
-        ('created_at', LastMonthDateFilter),
-    ]
-    readonly_fields = ('created_by',)
-
-    actions = CSVActionMixin.actions
-
-
 class OrderAdmin(EstimateCountAdminMixin, CSVActionMixin, CustomModelAdmin):
     search_fields = [
         'customer__name',
         'tracking_id',
     ]
-    list_display = ('tracking_sha',
+    list_dxisplay = ('tracking_sha',
                     'customer',
                     'internal_status',
                     'error_status',
@@ -83,57 +68,20 @@ class OrderAdmin(EstimateCountAdminMixin, CSVActionMixin, CustomModelAdmin):
 
         return redirect(redirect_url)
 
-    def show_related_line_items(self, request, queryset):
-        ids = list(queryset.values_list('id', flat=True))
-
-        redirect_url = reverse(f'admin:{self.model._meta.app_label}_lineitem_changelist')
-        redirect_url += f"?order__in={','.join(map(str, ids))}"
-
-        return redirect(redirect_url)
-
 
 class InventoryAdmin(EstimateCountAdminMixin, CSVActionMixin, CustomModelAdmin):
-    readonly_fields = (
-        'unordered',
-        'ordered',
-        'fulfilled',
-    )
-
-    search_fields = ['product__sku', 'product__name', 'product__product_type', ]
+    search_fields = ['sku', 'name', 'product_type', ]
 
     list_filter = [
-        'product__disabled_at',
-        ('product__product_type', DropdownFilter),
+        ('product_type', DropdownFilter),
     ]
 
     list_display = (
-        'product_sku', 'product_name', 'product_variant',
-        'lot_code', 'uuid', 'unordered', 'ordered', 'fulfilled',
+        'sku', 'name', 'variant',
+        'unordered', 'ordered', 'fulfilled',
     )
-    list_select_related = ['warehouse', 'product']
 
     actions = CSVActionMixin.actions + ['show_adjustment_logs', ]
-
-    # pylint: disable=no-self-use
-    def product_name(self, obj):
-        return obj.product.name
-
-    product_name.admin_order_field = 'product__name'
-    product_name.short_description = 'Product'
-
-    # pylint: disable=no-self-use
-    def product_variant(self, obj):
-        return obj.product.variant
-
-    product_variant.admin_order_field = 'product__variant'
-    product_variant.short_description = 'Variant'
-
-    # pylint: disable=no-self-use
-    def product_sku(self, obj):
-        return obj.product.sku
-
-    product_sku.admin_order_field = 'product__sku'
-    product_sku.short_description = 'SKU'
 
     # pylint: disable=no-self-use
     def show_adjustment_logs(self, request, queryset):
@@ -146,18 +94,16 @@ class InventoryAdmin(EstimateCountAdminMixin, CSVActionMixin, CustomModelAdmin):
 
 
 class InventoryAdjustmentAdmin(EstimateCountAdminMixin, CSVActionMixin, CustomModelAdmin):
-    search_fields = ['inventory__product__name', 'inventory__product__sku']
+    search_fields = ['inventory__name', 'inventory__sku']
     list_display = ('__str__', 'unordered_change', 'ordered_change', 'fulfilled_change',
                     'order_tracking_id', 'reason', 'created_by', 'created_at',)
 
     list_select_related = (
-        'order', 'user', 'inventory', 'inventory__product', 'inventory__warehouse',
+        'order', 'user', 'inventory',
     )
 
     list_filter = [
         ('reason', ChoiceDropdownFilter),
-        ('inventory__warehouse__short_code', DropdownFilter),
-        ('inventory__warehouse__name', DropdownFilter),
         ('user__username', DropdownFilter),
         ('created_at', MonthYearListFilter),
     ]
@@ -202,32 +148,31 @@ class InventoryAdjustmentAdmin(EstimateCountAdminMixin, CSVActionMixin, CustomMo
 # pylint: disable=no-self-use
 class InventoryAdjustmentLogAdmin(EstimateCountAdminMixin, CSVActionMixin, CustomModelAdmin):
     search_fields = [
-        'inventory__product__name', 'inventory__product__sku',
+        'inventory__name', 'inventory__sku',
         'source_adjustment__reason', 'source_adjustment__order__tracking_id'
     ]
 
-    list_display = ['created_at', 'product_name', 'product_sku',
-                    'warehouse', 'reason', 'created_by',
+    list_display = ['created_at', 'inventory_name', 'inventory_sku',
+                    'reason', 'created_by',
                     'unordered_change', 'ordered_change', 'fulfilled_change',
                     'absolute_pre_unordered', 'absolute_post_unordered',
                     'absolute_pre_ordered', 'absolute_post_ordered',
                     'absolute_pre_fulfilled', 'absolute_post_fulfilled',
                     'order_tracking_id']
 
-    list_download = list_display + ['source_adjustment__inventory__product__name',
-                                    'source_adjustment__inventory__product__sku',
+    list_download = list_display + ['source_adjustment__inventory__name',
+                                    'source_adjustment__inventory__sku',
                                     'source_adjustment__unordered_change',
                                     'source_adjustment__ordered_change',
                                     'source_adjustment__fulfilled_change']
 
     list_select_related = (
-        'inventory', 'inventory__product', 'inventory__warehouse',
-        'source_adjustment', 'source_adjustment__user', 'source_adjustment__order'
+        'inventory', 'source_adjustment',
+        'source_adjustment__user', 'source_adjustment__order'
     )
 
     list_filter = [
         ('source_adjustment__reason', ChoiceDropdownFilter),
-        ('inventory__warehouse__short_code', RelatedDropdownFilter),
         ('created_at', MonthYearListFilter),
     ]
 
@@ -243,11 +188,11 @@ class InventoryAdjustmentLogAdmin(EstimateCountAdminMixin, CSVActionMixin, Custo
         'absolute_post_fulfilled',
     )
 
-    def product_name(self, obj):
-        return obj.inventory.product.name if obj.inventory.product else None
+    def inventory_name(self, obj):
+        return obj.inventory.name
 
-    def product_sku(self, obj):
-        return obj.inventory.product.sku if obj.inventory.product else None
+    def inventory_sku(self, obj):
+        return obj.inventory.sku
 
     def reason(self, obj):
         return obj.source_adjustment.reason if obj.source_adjustment else None
@@ -267,53 +212,13 @@ class InventoryAdjustmentLogAdmin(EstimateCountAdminMixin, CSVActionMixin, Custo
     def order_tracking_id(self, obj):
         return obj.source_adjustment.order.tracking_id if obj.source_adjustment.order else None
 
-    def warehouse(self, obj):
-        return obj.inventory.warehouse.short_code
-
-
-# pylint: disable=no-self-use
-class ProductAdmin(CSVActionMixin, CustomModelAdmin):
-    search_fields = ['sku', 'name', ]
-    list_filter = [
-        'disabled_at', 'variant'
-    ]
-    list_display = ('name', 'sku', 'variant', 'product_type',)
-
-    list_download = list_display
-
-    actions = CSVActionMixin.actions
-
 
 class LineItemAdmin(EstimateCountAdminMixin, CSVActionMixin, CustomModelAdmin):
-    search_fields = ('product__sku', 'product__name',
+    search_fields = ('inventory__sku', 'inventory__name',
                      'uuid', 'order__tracking_id')
-    list_display = ('order_tracking_id', 'product', 'price', 'quantity')
+    list_display = ('order_tracking_id', 'inventory', 'price', 'quantity')
     list_select_related = ('order', 'product',)
-    list_filter = [('product__product_type', DropdownFilter)]
-
-
-class LocationAdmin(CSVActionMixin, CustomModelAdmin):
-    list_display = ('label', 'aisle', 'column', 'level',)
-    search_fields = ['label', 'aisle', 'column', 'level', 'warehouse']
-    list_filter = [
-        ('warehouse__short_code', DropdownFilter)
-    ]
-    list_select_related = ('warehouse', )
-
-
-class LotCodeAdmin(CSVActionMixin, CustomModelAdmin):
-    list_display = ['product', 'lot_number', ]
-    search_fields = ['product__sku', 'product__name', ]
-    list_filter = [('product__product_type', DropdownFilter)]
-    list_select_related = ['product']
-
-
-class WarehouseAdmin(EstimateCountAdminMixin, CSVActionMixin, CustomModelAdmin):
-    search_fields = ['name', 'description', 'address_1',
-                     'address_2', 'zip_code', 'city']
-    list_display = ('name', 'description', 'city', 'deleted_at')
-    list_filter = [('deleted_at', MonthYearListFilter)]
-    readonly_fields = ['name', 'description']
+    list_filter = [('inventory__product_type', DropdownFilter)]
 
 
 # Register your models here.
@@ -328,9 +233,4 @@ admin.site.register(models.Customer, CustomerAdmin)
 admin.site.register(models.Inventory, InventoryAdmin)
 admin.site.register(models.InventoryAdjustmentLog, InventoryAdjustmentLogAdmin)
 admin.site.register(models.InventoryAdjustment, InventoryAdjustmentAdmin)
-admin.site.register(models.LineItem, LineItemAdmin)
-admin.site.register(models.Location, LocationAdmin)
-admin.site.register(models.LotCode, LotCodeAdmin)
 admin.site.register(models.Order, OrderAdmin)
-admin.site.register(models.Product, ProductAdmin)
-admin.site.register(models.Warehouse, WarehouseAdmin)

@@ -18,20 +18,15 @@ class InventoryAdjustment(models.Model):
     REASON_CHOICES = REASON_CHOICES
 
     def __str__(self):
-        return "{} - {} - {}".format(
-            self.inventory.warehouse.name,
-            self.inventory.product.sku,
-            self.inventory.product.name,
+        return "{} - {}".format(
+            self.inventory.sku,
+            self.inventory.name,
         )
 
     inventory = models.ForeignKey('Inventory', on_delete=models.PROTECT)
     user = models.ForeignKey(User, on_delete=models.PROTECT, default=None, null=True)
     order = models.ForeignKey(
         'Order', default=None, null=True,
-        blank=True, on_delete=models.PROTECT
-    )
-    receipt = models.ForeignKey(
-        'Receipt', default=None, null=True,
         blank=True, on_delete=models.PROTECT
     )
     line_item = models.ForeignKey(

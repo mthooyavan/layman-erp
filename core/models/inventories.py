@@ -1,28 +1,27 @@
-import uuid
-
 from django.db import models
-from django.db.models import UniqueConstraint, Q
+from model_utils import Choices
+
+PRODUCT_TYPE = Choices(
+    ('paper', 'Paper'),
+    ('ink', 'Ink'),
+    ('plate', 'Plate'),
+)
 
 
 class Inventory(models.Model):
     class Meta:
-        constraints = [
-            UniqueConstraint(fields=['product', 'warehouse', 'lot_code'],
-                             name='unique_with_lot_code'),
-            UniqueConstraint(fields=['product', 'warehouse'],
-                             condition=Q(lot_code=None),
-                             name='unique_without_lot_code'),
-        ]
         verbose_name_plural = "inventories"
 
     def __str__(self):
-        return '{} - {}'.format(self.product, self.warehouse)
+        return '{} - {} {} - {}'.format(self.sku, self.name, self.variant, self.product_type)
 
-    uuid = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
-    product = models.ForeignKey('Product', on_delete=models.PROTECT)
-    warehouse = models.ForeignKey('Warehouse', on_delete=models.PROTECT)
-    lot_code = models.ForeignKey('LotCode', on_delete=models.PROTECT, null=True, blank=True)
-    location = models.ForeignKey('Location', on_delete=models.PROTECT, null=True, blank=True, default=None)
+    sku = models.CharField(db_index=True, unique=True, max_length=50)
+    name = models.CharField(db_index=True, max_length=255)
+    product_type = models.CharField(
+        db_index=True, max_length=10,
+        choices=PRODUCT_TYPE, default=PRODUCT_TYPE.paper
+    )
+    variant = models.CharField(db_index=True, max_length=255)
 
     unordered = models.IntegerField(db_index=True, default=0)
     ordered = models.IntegerField(default=0)
