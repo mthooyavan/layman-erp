@@ -6,7 +6,7 @@ from django.contrib.auth.models import Group
 from django.shortcuts import redirect
 from django.urls import reverse
 from rest_framework.authtoken.admin import TokenAdmin as DefaultTokenAdmin
-from rest_framework.authtoken.models import Token
+from rest_framework.authtoken.models import Token, TokenProxy
 
 from core import models
 from utils.admin import CustomModelAdmin, EstimateCountAdminMixin, CSVActionMixin, ChoiceDropdownFilter, DropdownFilter, \
@@ -304,6 +304,7 @@ class WarehouseAdmin(EstimateCountAdminMixin, CSVActionMixin, CustomModelAdmin):
 # Register your models here.
 admin.site.unregister(User)
 admin.site.unregister(Group)
+admin.site.unregister(TokenProxy)
 admin.site.register(User, UserAdmin)
 admin.site.register(Group, GroupAdmin)
 admin.site.register(Token, TokenAdmin)
