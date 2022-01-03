@@ -19,4 +19,5 @@ class LotCode(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     lot_number = models.CharField(
-        max_length=100, null=True, blank=True)
+        max_length=100, null=True, blank=True
+    )
