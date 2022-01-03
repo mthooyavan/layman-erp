@@ -35,6 +35,21 @@ class CustomerAdmin(CustomModelAdmin):
     ]
 
 
+class ReceiptAdmin(EstimateCountAdminMixin, CSVActionMixin, CustomModelAdmin):
+    search_fields = [
+        'receiving_centre',
+        'po_number',
+    ]
+    list_display = ('receiving_centre', 'po_number', 'created_at',)
+    list_select_related = ['receiving_centre', 'created_by']
+    list_filter = [
+        ('created_at', LastMonthDateFilter),
+    ]
+    readonly_fields = ('created_by',)
+
+    actions = CSVActionMixin.actions
+
+
 class OrderAdmin(EstimateCountAdminMixin, CSVActionMixin, CustomModelAdmin):
     search_fields = [
         'customer__name',
