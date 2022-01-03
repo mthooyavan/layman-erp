@@ -6,6 +6,8 @@ django-heroku==0.3.1
 django-crum==0.7.9
 django-json-widget==1.1.1
 django-cors-headers==3.10.1
+django-localflavor==3.1
+django-model-utils==4.2.0
 djangorestframework==3.13.1
 djangorestframework-simplejwt==5.0.0
 drf-yasg==1.20.0
