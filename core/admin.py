@@ -40,7 +40,7 @@ class OrderAdmin(EstimateCountAdminMixin, CSVActionMixin, CustomModelAdmin):
         'customer__name',
         'tracking_id',
     ]
-    list_dxisplay = ('tracking_sha',
+    list_display = ('tracking_sha',
                     'customer',
                     'internal_status',
                     'error_status',
@@ -216,8 +216,8 @@ class InventoryAdjustmentLogAdmin(EstimateCountAdminMixin, CSVActionMixin, Custo
 class LineItemAdmin(EstimateCountAdminMixin, CSVActionMixin, CustomModelAdmin):
     search_fields = ('inventory__sku', 'inventory__name',
                      'uuid', 'order__tracking_id')
-    list_display = ('order_tracking_id', 'inventory', 'price', 'quantity')
-    list_select_related = ('order', 'product',)
+    list_display = ('order_tracking_id', 'inventory', 'quantity')
+    list_select_related = ('order', 'inventory',)
     list_filter = [('inventory__product_type', DropdownFilter)]
 
 
@@ -233,4 +233,5 @@ admin.site.register(models.Customer, CustomerAdmin)
 admin.site.register(models.Inventory, InventoryAdmin)
 admin.site.register(models.InventoryAdjustmentLog, InventoryAdjustmentLogAdmin)
 admin.site.register(models.InventoryAdjustment, InventoryAdjustmentAdmin)
+admin.site.register(models.LineItem, LineItemAdmin)
 admin.site.register(models.Order, OrderAdmin)
