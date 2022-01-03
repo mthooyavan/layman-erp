@@ -27,6 +27,8 @@ ERROR_STATUS_CHOICES = Choices(
 
 
 class Order(CustomModel):
+    def __str__(self):
+        return '{} - {}'.format(self.tracking_id, self.customer.name)
     tracking_id = models.CharField(max_length=100, unique=True, db_index=True)
     customer = models.ForeignKey(
         'Customer', on_delete=models.PROTECT,

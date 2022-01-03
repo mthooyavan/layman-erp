@@ -4,6 +4,8 @@ from django.db import models
 
 
 class LineItem(models.Model):
+    def __str__(self):
+        return '{} - {}'.format(self.product, self.order)
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     order = models.ForeignKey('Order', on_delete=models.PROTECT, related_name='line_item_set')
     product = models.ForeignKey('Product', on_delete=models.PROTECT)
