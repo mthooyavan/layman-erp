@@ -38,7 +38,6 @@ def post_save_hook(sender, instance, created, **kwargs):
             user=system_user(),
             unordered_change=-instance.quantity,
             ordered_change=instance.quantity,
-            fulfilled_change=0,
             reason=REASON_CHOICES.order_reserved
         )
         inv_adj_log = InventoryAdjustmentLog.objects.create(
@@ -46,15 +45,11 @@ def post_save_hook(sender, instance, created, **kwargs):
             source_adjustment=inv_adj,
             unordered_change=-instance.quantity,
             ordered_change=instance.quantity,
-            fulfilled_change=0,
             absolute_pre_unordered=inventory.unordered,
             absolute_pre_ordered=inventory.ordered,
-            absolute_pre_fulfilled=inventory.fulfilled,
             absolute_post_unordered=inventory.unordered + inv_adj.unordered_change,
             absolute_post_ordered=inventory.ordered + inv_adj.ordered_change,
-            absolute_post_fulfilled=inventory.fulfilled + inv_adj.fulfilled_change,
         )
         inventory.unordered = inv_adj_log.absolute_post_unordered
         inventory.ordered = inv_adj_log.absolute_post_ordered
-        inventory.fulfilled = inv_adj_log.absolute_post_fulfilled
         inventory.save()

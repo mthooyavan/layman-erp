@@ -35,7 +35,6 @@ class InventoryAdjustment(models.Model):
     )
     unordered_change = models.IntegerField(default=0)
     ordered_change = models.IntegerField(default=0)
-    fulfilled_change = models.IntegerField(default=0)
     reason = models.CharField(
         max_length=30,
         choices=REASON_CHOICES,

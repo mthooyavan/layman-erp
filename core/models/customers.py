@@ -4,7 +4,7 @@ from localflavor.in_.models import INStateField
 
 class Customer(models.Model):
     def __str__(self):
-        return f"{self.name} | {self.email}"
+        return f"{self.name} | {self.city}"
 
     name = models.CharField(max_length=128, blank=True, null=True)
     email = models.EmailField(max_length=128, db_index=True, blank=True, null=True, default=None)

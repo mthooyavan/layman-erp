@@ -37,19 +37,17 @@ class CustomerAdmin(CustomModelAdmin):
 
 class OrderAdmin(EstimateCountAdminMixin, CSVActionMixin, CustomModelAdmin):
     search_fields = [
+        'name',
         'customer__name',
         'tracking_id',
     ]
     list_display = ('tracking_sha',
+                    'name',
                     'customer',
-                    'internal_status',
-                    'error_status',
                     'created_at',
                     'created_by')
     list_select_related = ['customer', 'created_by']
     list_filter = [
-        ('internal_status', ChoiceDropdownFilter),
-        ('error_status', ChoiceDropdownFilter),
         ('customer__name', DropdownFilter),
         ('created_at', LastMonthDateFilter),
     ]
@@ -77,8 +75,8 @@ class InventoryAdmin(EstimateCountAdminMixin, CSVActionMixin, CustomModelAdmin):
     ]
 
     list_display = (
-        'sku', 'name', 'variant',
-        'unordered', 'ordered', 'fulfilled',
+        'product_type', 'sku', 'name', 'variant',
+        'unordered', 'ordered',
     )
 
     actions = CSVActionMixin.actions + ['show_adjustment_logs', ]
@@ -95,8 +93,9 @@ class InventoryAdmin(EstimateCountAdminMixin, CSVActionMixin, CustomModelAdmin):
 
 class InventoryAdjustmentAdmin(EstimateCountAdminMixin, CSVActionMixin, CustomModelAdmin):
     search_fields = ['inventory__name', 'inventory__sku']
-    list_display = ('__str__', 'unordered_change', 'ordered_change', 'fulfilled_change',
-                    'order_tracking_id', 'reason', 'created_by', 'created_at',)
+    list_display = ('__str__', 'order_tracking_id', 'order_name',
+                    'unordered_change', 'ordered_change',
+                    'reason', 'created_by', 'created_at',)
 
     list_select_related = (
         'order', 'user', 'inventory',
@@ -123,7 +122,17 @@ class InventoryAdjustmentAdmin(EstimateCountAdminMixin, CSVActionMixin, CustomMo
         return ''
 
     order_tracking_id.admin_order_field = 'order__tracking_id'
-    order_tracking_id.short_description = 'Order'
+    order_tracking_id.short_description = 'Order ID'
+
+    # pylint: disable=no-self-use
+    def order_name(self, inventory_adjustment):
+        order = inventory_adjustment.order
+        if order:
+            return order.name
+        return ''
+
+    order_name.admin_order_field = 'order__name'
+    order_name.short_description = 'Order Name'
 
     # pylint: disable=no-self-use
     def created_by(self, inventory_adjustment):
@@ -154,11 +163,10 @@ class InventoryAdjustmentLogAdmin(EstimateCountAdminMixin, CSVActionMixin, Custo
 
     list_display = ['created_at', 'inventory_name', 'inventory_sku',
                     'reason', 'created_by',
-                    'unordered_change', 'ordered_change', 'fulfilled_change',
+                    'unordered_change', 'ordered_change',
                     'absolute_pre_unordered', 'absolute_post_unordered',
                     'absolute_pre_ordered', 'absolute_post_ordered',
-                    'absolute_pre_fulfilled', 'absolute_post_fulfilled',
-                    'order_tracking_id']
+                    'order_tracking_id', 'order_name']
 
     list_download = list_display + ['source_adjustment__inventory__name',
                                     'source_adjustment__inventory__sku',
@@ -179,13 +187,10 @@ class InventoryAdjustmentLogAdmin(EstimateCountAdminMixin, CSVActionMixin, Custo
     readonly_fields = (
         'unordered_change',
         'ordered_change',
-        'fulfilled_change',
         'absolute_pre_unordered',
         'absolute_pre_ordered',
-        'absolute_pre_fulfilled',
         'absolute_post_unordered',
         'absolute_post_ordered',
-        'absolute_post_fulfilled',
     )
 
     def inventory_name(self, obj):
@@ -211,6 +216,9 @@ class InventoryAdjustmentLogAdmin(EstimateCountAdminMixin, CSVActionMixin, Custo
 
     def order_tracking_id(self, obj):
         return obj.source_adjustment.order.tracking_id if obj.source_adjustment.order else None
+
+    def order_name(self, obj):
+        return obj.source_adjustment.order.name if obj.source_adjustment.order else None
 
 
 class LineItemAdmin(EstimateCountAdminMixin, CSVActionMixin, CustomModelAdmin):

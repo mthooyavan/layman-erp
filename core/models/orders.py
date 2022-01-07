@@ -28,25 +28,13 @@ ERROR_STATUS_CHOICES = Choices(
 
 class Order(CustomModel):
     def __str__(self):
-        return self.tracking_id
+        return f"{self.tracking_id} - {self.name}"
     tracking_id = models.CharField(max_length=100, unique=True, db_index=True)
+    name = models.CharField(max_length=255, null=True, blank=True, default=None)
     customer = models.ForeignKey(
         'Customer', on_delete=models.PROTECT,
         default=None, null=True, blank=True,
         related_name='orders'
-    )
-    internal_status = models.CharField(
-        max_length=20,
-        choices=INTERNAL_STATUS_CHOICES,
-        default=INTERNAL_STATUS_CHOICES.not_yet_picked, db_index=True
-    )
-    error_status = models.CharField(
-        choices=ERROR_STATUS_CHOICES,
-        max_length=32, null=True, default=None, blank=True
-    )
-    print_priority = models.PositiveSmallIntegerField(
-        default=5, validators=[MinValueValidator(1), MaxValueValidator(10)],
-        help_text='Set the priority for this order to be packed - 1 is the highest priority, 10 is the lowest'
     )
 
     created_by = models.ForeignKey(

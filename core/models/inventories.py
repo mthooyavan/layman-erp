@@ -25,7 +25,6 @@ class Inventory(models.Model):
 
     unordered = models.IntegerField(db_index=True, default=0)
     ordered = models.IntegerField(default=0)
-    fulfilled = models.IntegerField(default=0)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
