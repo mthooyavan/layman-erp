@@ -35,6 +35,14 @@ class CustomerAdmin(CustomModelAdmin):
     ]
 
 
+class VendorAdmin(CustomModelAdmin):
+    """Admin class for the Vendor model"""
+    search_fields = ['name', 'email', 'phone']
+    list_display = [
+         'name', 'email', 'phone',
+    ]
+
+
 class OrderAdmin(EstimateCountAdminMixin, CSVActionMixin, CustomModelAdmin):
     search_fields = [
         'name',
@@ -49,6 +57,36 @@ class OrderAdmin(EstimateCountAdminMixin, CSVActionMixin, CustomModelAdmin):
     list_select_related = ['customer', 'created_by']
     list_filter = [
         ('customer__name', DropdownFilter),
+        ('created_at', LastMonthDateFilter),
+    ]
+    readonly_fields = ('created_by',)
+
+    actions = CSVActionMixin.actions + [
+        'show_related_inventory_adjustments', 'show_related_line_items',
+    ]
+
+    def show_related_inventory_adjustments(self, request, queryset):
+
+        ids = list(queryset.values_list('id', flat=True))
+
+        redirect_url = reverse(f'admin:{self.model._meta.app_label}_inventoryadjustment_changelist')
+        redirect_url += f"?order__in={','.join(map(str, ids))}"
+
+        return redirect(redirect_url)
+
+
+class PurchaseOrderAdmin(EstimateCountAdminMixin, CSVActionMixin, CustomModelAdmin):
+    search_fields = [
+        'vendor__name',
+        'tracking_id',
+    ]
+    list_display = ('tracking_sha',
+                    'vendor',
+                    'created_at',
+                    'created_by')
+    list_select_related = ['vendor', 'created_by']
+    list_filter = [
+        ('vendor__name', DropdownFilter),
         ('created_at', LastMonthDateFilter),
     ]
     readonly_fields = ('created_by',)
@@ -238,8 +276,10 @@ admin.site.register(Group, GroupAdmin)
 admin.site.register(Token, TokenAdmin)
 
 admin.site.register(models.Customer, CustomerAdmin)
+admin.site.register(models.Vendor, VendorAdmin)
 admin.site.register(models.Inventory, InventoryAdmin)
 admin.site.register(models.InventoryAdjustmentLog, InventoryAdjustmentLogAdmin)
 admin.site.register(models.InventoryAdjustment, InventoryAdjustmentAdmin)
 admin.site.register(models.LineItem, LineItemAdmin)
 admin.site.register(models.Order, OrderAdmin)
+admin.site.register(models.PurchaseOrder, PurchaseOrderAdmin)

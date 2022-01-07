@@ -29,6 +29,10 @@ class InventoryAdjustment(models.Model):
         'Order', default=None, null=True,
         blank=True, on_delete=models.PROTECT
     )
+    purchase = models.ForeignKey(
+        'PurchaseOrder', default=None, null=True,
+        blank=True, on_delete=models.PROTECT
+    )
     line_item = models.ForeignKey(
         'LineItem', default=None, null=True,
         blank=True, on_delete=models.PROTECT
